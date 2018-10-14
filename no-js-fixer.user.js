@@ -272,9 +272,12 @@ while (true) {
 }
 
 
-// removes click protection from images intended to prevent saving the image
-for(var elem of document.querySelectorAll('img[pointer-events=none]')){
-    elem.style['pointer-events'] = 'initial';  
+// removes click protection from images and videos intended to prevent saving
+for(var elem of document.querySelectorAll('img, video')){
+    var currentstyle = window.getComputedStyle(elem);
+    if(('pointer-events' in currentstyle) && (currentstyle['pointer-events'] == 'none')){
+        elem.style['pointer-events'] = 'initial';
+    }
 }
 
 // fix oversized SVG graphics
