@@ -239,7 +239,7 @@ dispatch = {
     function() {
         for(var video of document.querySelectorAll('video')) {
           var currentstyle = window.getComputedStyle(video);
-          console.log(currentstyle.height);
+          //console.log(currentstyle.height);
           if ("height" in currentstyle) {
             video.style.height = "initial";
           }
@@ -298,9 +298,9 @@ for(var element of document.querySelectorAll('svg:not([width]):not([height])')){
     var link_url;
     var image_url;
     for(var frame of document.body.querySelectorAll('iframe.embedly-embed')) {
-      console.log(frame);
+      //console.log(frame);
       src = frame.getAttribute("src") || "";
-      console.log(src);
+      //console.log(src);
       link_match = /&url=(.+?)(&|$)/.exec(src);
       image_match = /&image=(.+?)(&|$)/.exec(src);
       if (link_match != null) {
