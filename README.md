@@ -2,7 +2,7 @@
 
 no-js-fixer is a userscript that fixes webpages which unnecessarily break when javascript is disabled. This kind of web development practice has become an epidemic. In addition to fixes for specific websites, this script identifies and fixes common problems encountered with javascript disabled or when blocking third-party resources with something like umatrix. 
 
-Current features:
+## Current features:
 - Images that are styled as invisible or blurred, which are supposed to be made visible by javascript on the page when scrolled to as part of an unnecessary gimmick. They remain like this if javascript is disabled. This script identifies images styled like this and makes them visible
 - Converts youtube embeds to links
 - Converts images channeled through embed.ly ifrmaes into normal img elements pointing directly to the source
@@ -13,3 +13,7 @@ Current features:
 - Fixes some miscellaneous websites with easily fixable defects
 
 The nature of this userscript makes it highly amenable to contributions which fix certain sites. Ideally, if the issue is something widespread on multiple websites and it can be detected, it is preferable to fix it in general than for specific sites. As this userscript grows over time, I'll consider converting it into an addon.
+
+## License
+
+This project is licensed under the GNU GPLv3. See LICENSE for the full license text.
