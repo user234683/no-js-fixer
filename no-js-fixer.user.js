@@ -81,12 +81,6 @@ function stackexchange_sites() {
 
 
 dispatch = {
-"prnt.sc":
-    function(){
-        for(var elem of document.querySelectorAll('.no-click')){
-         elem.style['pointer-events'] = 'initial';  
-        }
-    },
 
 "deviantart.com":   // removes redirects
     function(){
@@ -278,8 +272,10 @@ while (true) {
 }
 
 
-
-
+// removes click protection from images intended to prevent saving the image
+for(var elem of document.querySelectorAll('img[pointer-events=none]')){
+    elem.style['pointer-events'] = 'initial';  
+}
 
 // fix oversized SVG graphics
 for(var element of document.querySelectorAll('svg:not([width]):not([height])')){
