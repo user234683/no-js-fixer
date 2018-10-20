@@ -352,12 +352,19 @@ dispatch = {
     },
 "google.com":
     function() {
-        // part 1 - remove link mangling
+        // remove link mangling in search results
         for(var element of document.querySelectorAll('#search a[onmousedown]')){
             element.setAttribute("onmousedown", '');
         }
-        // part 2 - remove redirects (only for old-style result page)
-        for(var element of document.querySelectorAll('#search h3 > a')){
+
+        // remove link mangling on links in image viewer thingy in google iamges
+        for(var element of document.querySelectorAll('a[jsaction][rel=noopener]')){
+            element.setAttribute("jsaction", '');
+        }
+
+
+        // remove redirects (only for old-style result page)
+        for(var element of document.querySelectorAll('#search h3 > a, #search td > a')){
             if (/^(https?:\/\/(www\.|encrypted\.)?google\.[^\/]*)?\/?url/.test(element.href)) {
               var matches = /[\?&](url|q)=(.+?)(?:&sa=|&ved=)/.exec(element.href);
               if (matches != null) {
@@ -366,7 +373,7 @@ dispatch = {
             }
         }
 
-        // part 3 - add links for cached link and similar results
+        // add links for cached link and similar results
         var result_href;
         var parent_node;
         var result_container;
