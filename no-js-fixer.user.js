@@ -282,6 +282,68 @@ dispatch = {
             
         }
     },
+"imgur.com":
+    function() {
+        for(var post_image of document.querySelectorAll(".post-image")){
+            var needs_fix = false;
+            var image_url;
+            var thumbnail_url = null;
+            var embed_url = null;
+            if(post_image.children.length == 0){  // don't add extraneous images when javascript is enabeld
+                var image_id = post_image.parentElement.getAttribute('id');
+                image_url = "//i.imgur.com/" + image_id + ".png";
+                needs_fix = true;
+                
+            } else {
+                needs_fix = true;
+                // when js disabled, will just be a bunch of meta tags as children
+                // this is in the case of videos or gifs
+                for(var child of post_image.children){
+                    if(child.tagName.toLowerCase() == "meta"){
+                        // lowercase because it looks like it's Url sometimes, URL other times
+                        switch(child.getAttribute("itemprop").toLowerCase()){
+                            case "contenturl":
+                                image_url = child.getAttribute("content");
+                                break;
+                            case "thumbnailurl":
+                                thumbnail_url = child.getAttribute("content");
+                                break;
+                            case "embedurl":
+                                embed_url = child.getAttribute("content");
+                                break;
+                        }
+                    } else {
+                        needs_fix = false;
+                        break;
+                    }
+                }
+            }
+
+            if(needs_fix){
+                var extension = image_url.slice(image_url.lastIndexOf(".")+1);
+                if(["webm", "mp4", "gifv"].includes(extension)){
+                    var vid = document.createElement('video');
+                    vid.setAttribute('src', image_url);
+                    vid.setAttribute('controls', '');
+                    if(thumbnail_url)
+                        vid.setAttribute('poster', thumbnail_url);
+                    post_image.appendChild(vid);
+                } else {
+
+                    var link_element = document.createElement("a");
+                    link_element.setAttribute('href', image_url);
+                    link_element.setAttribute("class", "zoom");
+                    post_image.appendChild(link_element);
+
+
+                    var img = document.createElement('img');
+                    img.setAttribute('src', image_url);
+                    link_element.appendChild(img);
+                }
+            }
+        }
+
+    },
 }
 
 function doit(){
