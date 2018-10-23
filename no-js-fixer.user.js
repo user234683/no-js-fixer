@@ -5,11 +5,31 @@
 // ==/UserScript==
 
 
-function on_load(fix_site_function){
+
+function on_DOM_load(fix_site_function){
     return function(){
-        window.addEventListener('load', fix_site_function, false);
+        if(document.readyState === "loading"){
+            window.addEventListener('DOMContentLoaded', fix_site_function);
+        } else {
+            fix_site_function();
+        }
     };
 }
+function on_DOM_and_CSS_load(fix_site_function){
+    return function(){
+        window.addEventListener('DOMAndCSSLoaded', fix_site_function);
+    };
+}
+function on_load(fix_site_function){
+    return function(){
+        if(document.readyState === "loading"){
+            window.addEventListener('load', fix_site_function, false);
+        } else {
+            fix_site_function();
+        }
+    };
+}
+
 
 // for pages which generate elements with javascript
 // observes the page for "a" elements that are added to the page or whose href is changed, and calls the fix_link_function for the specific site
@@ -442,20 +462,24 @@ while (true) {
 
 
 // removes click protection from images and videos intended to prevent saving
-for(var elem of document.querySelectorAll('img, video')){
-    var currentstyle = window.getComputedStyle(elem);
-    if(('pointer-events' in currentstyle) && (currentstyle['pointer-events'] == 'none')){
-        elem.style['pointer-events'] = 'initial';
+on_DOM_and_CSS_load(function(){
+    for(var elem of document.querySelectorAll('img, video')){
+        var currentstyle = window.getComputedStyle(elem);
+        if(('pointer-events' in currentstyle) && (currentstyle['pointer-events'] == 'none')){
+            elem.style['pointer-events'] = 'initial';
+        }
     }
-}
+})();
 
 // fix oversized SVG graphics
-for(var element of document.querySelectorAll('svg:not([width]):not([height])')){
-  element.setAttribute('height', '1em');
-}
+on_DOM_load(function(){
+    for(var element of document.querySelectorAll('svg:not([width]):not([height])')){
+      element.setAttribute('height', '1em');
+    }
+})();
 
 // remove embed.ly
-(function(){
+on_DOM_load(function(){
     var querySelectorAllIncludingFrames = function(element,selector) {
       var results = Array.from(element.querySelectorAll(selector));
       for(var frame of document.querySelectorAll('iframe')) {
@@ -499,7 +523,7 @@ for(var element of document.querySelectorAll('svg:not([width]):not([height])')){
 
 // fix tumblr sites
 // example: https://quantumweekly.com/
-(function(){
+on_DOM_load(function(){
     // detect whether it's a tumblr site
     var element = document.querySelector('meta[property="og:type"]');
     if(element !== null) {
@@ -526,7 +550,8 @@ for(var element of document.querySelectorAll('svg:not([width]):not([height])')){
 // common antipattern: invisible or blurred images that are made visible by javascript when scrolled to
 // https://www.theatlantic.com/photo/2012/12/chinas-nail-grave-relocated/100425/
 // http://www.brokenbrowser.com/revealing-the-content-of-the-address-bar-ie/
-function fix_images(){
+// https://www.washingtonpost.com/national/health-science/a-14-year-long-oil-spill-in-the-gulf-of-mexico-verges-on-becoming-one-of-the-worst-in-us-history/2018/10/20/f9a66fd0-9045-11e8-bcd5-9d911c784c38_story.html?noredirect=on
+on_DOM_and_CSS_load(function (){
   for(var img of document.querySelectorAll('img')){
     currentstyle = window.getComputedStyle(img);
     if (("filter" in currentstyle) && currentstyle.filter.includes("blur")) {
@@ -545,8 +570,7 @@ function fix_images(){
       img.style.visibility = "visible";
     }
   }
-}
-
+})();
 
 
 
@@ -557,7 +581,7 @@ function fix_images(){
 // TODO: Do more cleaning on the link in cases like this? https://www.youtube.com/watch?v=PUvn5xdmfXU?rel=0&autoplay=0&loop=0&start=&end=
 // TODO: Maybe remove styling on the links since it sometimes looks weird with certain websites' styles
 
-(function(){
+on_DOM_load(function(){
     var frame_to_link_if_yt_embed = function(frame) {
       src = frame.getAttribute("src") || "";
       if ( (src.indexOf("youtube.com") !== -1) || (src.indexOf("youtu.be") !== -1) || (src.indexOf("youtube-nocookie.com") !== -1)) {
@@ -618,7 +642,7 @@ function fix_images(){
 // https://www.quora.com/Why-does-C-has-exclamation-point-for-not-ampersand-for-and-and-vertical-line-for-or
 // https://www.theatlantic.com/photo/2012/12/chinas-nail-grave-relocated/100425/
 
-(function(){
+on_DOM_load(function(){
     var lazy_image_keywords = ['data', 'pagespeed', 'lazy', 'src'];
     var image_extensions = ['.jpg', '.png', '.gif', '.bmp'];
 
@@ -668,3 +692,29 @@ function fix_images(){
 
     }
 })();
+
+
+// -------- Make the custom DOMAndCSSLoaded event ---------
+// https://stackoverflow.com/a/52938852/8146866
+var dom_css_loaded = new Event('DOMAndCSSLoaded');
+
+function setup_stylesheet_check(){
+    Promise.all(Array.from(document.querySelectorAll('link[rel="stylesheet"]'), ss => new Promise(resolve => {
+        const href = ss.href;
+        const fulfill = status => resolve({href, status});
+        setTimeout(fulfill, 1000, 'timeout');
+        ss.addEventListener('load', () => resolve('load'));
+        ss.addEventListener('error', () => resolve('error')); // yes, resolve, because we just want to wait until all stylesheets are done with, errors shouldn't stop us
+    }))).then((results) => {
+        // results is an array of {href:'some url', status: 'load|error|timeout'}
+        // at this point stylesheets have finished loading
+        window.dispatchEvent(dom_css_loaded);
+    });
+}
+
+// incase it's already finished by the time this is run
+if(document.readyState === "loading"){
+    window.addEventListener('DOMContentLoaded', setup_stylesheet_check);
+} else {
+    setup_stylesheet_check();
+}
