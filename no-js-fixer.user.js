@@ -276,7 +276,7 @@ dispatch = {
     },
 
 "flickr.com":   // bypasses "Adult content: you must sign in to view", also makes link to full image
-    on_load(function() {    
+    function() {    
         for(var in_the_way of document.querySelectorAll(".photo-notes-scrappy-view, .facade-of-protection-neue ")){
             in_the_way.style.display = "none";
         }
@@ -307,7 +307,7 @@ dispatch = {
             }
             
         }
-    }),
+    },
 "imgur.com":
     function() {
         for(var post_image of document.querySelectorAll(".post-image")){
@@ -436,6 +436,16 @@ dispatch = {
         }
 
     },
+"washingtonpost.com":
+    function() {
+        for(var bad_embed of document.querySelectorAll("div[data-youtube-id]")){
+            var video_link = document.createElement("a");
+            var video_url = "https://youtube.com/watch?v=" + bad_embed.getAttribute('data-youtube-id');
+            video_link.setAttribute('href', video_url);
+            video_link.innerHTML = video_url;
+            bad_embed.appendChild(video_link);
+        }
+    },
 }
 
 
@@ -455,7 +465,7 @@ while (true) {
         }
         domain = domain.slice(dot+1);
     } else {
-        dispatch_function();
+        on_DOM_load(dispatch_function)();
         break;
     }
 }
