@@ -298,11 +298,17 @@ dispatch = {
         // normal page example: https://www.flickr.com/photos/artur_wala/39447177074/
         // add link to full image
         } else {
-            var img = document.querySelector("noscript > .main-photo, span > .main-photo");
+
+            // prevent duplicate photo when using noscript-spoofing in umatrix
+            var noscript = document.querySelector("img.main-photo.is-hidden ~ noscript");
+            noscript.parentElement.removeChild(noscript);
+
+            var img = document.querySelector("img.main-photo.is-hidden");
+            img.style.display = "initial";
             if(img){
                 var full_link = document.createElement("a");
                 full_link.setAttribute('href', img_url);
-                img.parentNode.parentNode.appendChild(full_link);
+                img.parentNode.appendChild(full_link);
                 full_link.appendChild(img);
             }
             
