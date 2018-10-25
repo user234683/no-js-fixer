@@ -4,7 +4,8 @@
 // @grant    none
 // ==/UserScript==
 
-
+var d = new Date();
+console.log(d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds() + ":" + d.getMilliseconds());
 
 function on_DOM_load(fix_site_function){
     return function(){
@@ -451,6 +452,13 @@ dispatch = {
             video_link.innerHTML = video_url;
             bad_embed.appendChild(video_link);
         }
+        // prevent the lazy-load fixer from choosing the raw img source
+        // the sidebar images are normally 60x60 but come with an attribute which has the huge raw image source
+        // in its attempt to find the largest image to set as the src, it chooses that huge raw image
+        // but the css doesn't have any height/width rules - it just expects a 60x60 image, so the large image ends up covering the page
+        for(var img of document.querySelectorAll("li img[data-raw-src]")){
+            img.removeAttribute("data-raw-src");
+        }
     },
 }
 
@@ -718,12 +726,13 @@ function setup_stylesheet_check(){
     Promise.all(Array.from(document.querySelectorAll('link[rel="stylesheet"]'), ss => new Promise(resolve => {
         const href = ss.href;
         const fulfill = status => resolve({href, status});
-        setTimeout(fulfill, 1000, 'timeout');
+        //setTimeout(fulfill, 1000, 'timeout');
         ss.addEventListener('load', () => resolve('load'));
         ss.addEventListener('error', () => resolve('error')); // yes, resolve, because we just want to wait until all stylesheets are done with, errors shouldn't stop us
     }))).then((results) => {
         // results is an array of {href:'some url', status: 'load|error|timeout'}
         // at this point stylesheets have finished loading
+        console.log("finished");
         window.dispatchEvent(dom_css_loaded);
     });
 }
