@@ -460,6 +460,20 @@ dispatch = {
             img.removeAttribute("data-raw-src");
         }
     },
+"qz.com":
+    function() {
+        // This is necessary because umatrix is getting run after this script
+        // The site has a css rule for invisible images. It presumably generates the html for the images with javascript normally.
+        // The developers were courteous and just put the ready img tag inside a <noscript> tag, and a css rule inside
+        //  the noscript tag to override the invisibility. However, when umatrix changes it to a <span> as part of the noscript spoofing,
+        //  the invisibility override rule no longer applies since the selector assumes a noscript tag.
+        // Because this script runs before umatrix, it sees noscript elements. The nodes inside noscript elements can't be queried with selectors.
+        // Even if they could be, the invisible/blurred images fixer wouldn't do anything because it would
+        //  see images that aren't invisible since the invisibility override still applies
+        for(var noscript of document.querySelectorAll('noscript')){
+            noscript.outerHTML = '<span style="display: inline !important;">' + noscript.innerHTML + '</span>';
+        }
+    },
 }
 
 
