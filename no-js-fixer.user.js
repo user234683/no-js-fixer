@@ -590,6 +590,7 @@ on_DOM_load(function(){
 // http://www.brokenbrowser.com/revealing-the-content-of-the-address-bar-ie/
 // https://www.washingtonpost.com/national/health-science/a-14-year-long-oil-spill-in-the-gulf-of-mexico-verges-on-becoming-one-of-the-worst-in-us-history/2018/10/20/f9a66fd0-9045-11e8-bcd5-9d911c784c38_story.html?noredirect=on
 on_DOM_and_CSS_load(function (){
+    console.log("fuck javascript");
   for(var img of document.querySelectorAll('img')){
     currentstyle = window.getComputedStyle(img);
     if (("filter" in currentstyle) && currentstyle.filter.includes("blur")) {
@@ -598,13 +599,13 @@ on_DOM_and_CSS_load(function (){
     if (("-webkit-filter" in currentstyle) && currentstyle["-webkit-filter"].includes("blur")) {
       img.style["-webkit-filter"] = "none";
     }
-    if (("opacity" in currentstyle) && img.style.opacity != 1){
+    if (("opacity" in currentstyle) && currentstyle.opacity != 1){
       img.style.opacity = 1; 
     }
-    if (("display" in currentstyle)&& img.style.display == "none") {
+    if (("display" in currentstyle)&& currentstyle.display == "none") {
       img.style.display = "initial";
     }
-    if (("visibility" in currentstyle) && img.style.visibility == "hidden") {
+    if (("visibility" in currentstyle) && currentstyle.visibility == "hidden") {
       img.style.visibility = "visible";
     }
   }
@@ -740,7 +741,7 @@ function setup_stylesheet_check(){
     Promise.all(Array.from(document.querySelectorAll('link[rel="stylesheet"]'), ss => new Promise(resolve => {
         const href = ss.href;
         const fulfill = status => resolve({href, status});
-        //setTimeout(fulfill, 1000, 'timeout');
+        setTimeout(fulfill, 1000, 'timeout');
         ss.addEventListener('load', () => resolve('load'));
         ss.addEventListener('error', () => resolve('error')); // yes, resolve, because we just want to wait until all stylesheets are done with, errors shouldn't stop us
     }))).then((results) => {
