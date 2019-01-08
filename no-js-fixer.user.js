@@ -592,6 +592,18 @@ on_DOM_load(function(){
 
 })();
 
+function make_visible(elem){
+    var currentstyle = window.getComputedStyle(elem);
+    if (("opacity" in currentstyle) && currentstyle.opacity != 1){
+        elem.style.opacity = 1; 
+    }
+    if (("display" in currentstyle)&& currentstyle.display == "none") {
+        elem.style.display = "initial";
+    }
+    if (("visibility" in currentstyle) && currentstyle.visibility == "hidden") {
+        elem.style.visibility = "visible";
+    }
+}
 
 // common antipattern: invisible or blurred images that are made visible by javascript when scrolled to
 // https://www.theatlantic.com/photo/2012/12/chinas-nail-grave-relocated/100425/
@@ -607,19 +619,20 @@ on_DOM_and_CSS_load(function (){
     if (("-webkit-filter" in currentstyle) && currentstyle["-webkit-filter"].includes("blur")) {
       img.style["-webkit-filter"] = "none";
     }
-    if (("opacity" in currentstyle) && currentstyle.opacity != 1){
-      img.style.opacity = 1; 
-    }
-    if (("display" in currentstyle)&& currentstyle.display == "none") {
-      img.style.display = "initial";
-    }
-    if (("visibility" in currentstyle) && currentstyle.visibility == "hidden") {
-      img.style.visibility = "visible";
-    }
+
+    make_visible(img);
   }
 })();
 
 
+// Fix simple case of sites which make the <html> or <body> tags invisible
+// Example: 
+//    https://live.engadget.com/2018/05/20/tesla-releases-source-code-for-autopilot-and-infotainment-tech/
+on_DOM_and_CSS_load(function (){
+    make_visible(document.querySelector('html'));
+    make_visible(document.querySelector('body'));
+
+})();
 
 
 // Converts youtube embeds to links
