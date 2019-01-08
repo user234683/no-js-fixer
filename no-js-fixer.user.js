@@ -563,25 +563,33 @@ on_DOM_load(function(){
 // example: https://quantumweekly.com/
 on_DOM_load(function(){
     // detect whether it's a tumblr site
-    var element = document.querySelector('meta[property="og:type"]');
-    if(element !== null) {
-      var content = element.getAttribute("content");
-      if(content !== null && content.includes('tumblr')){
-        
-        // fix redirects
-        for(var element of document.querySelectorAll('a')){
-          var match = /(?:(?:https?:\/\/)?t\.umblr.com)?\/redirect\?z=(.+?)(&|$)/.exec(element.getAttribute("href") || "");
-          if(match !== null) {
-            element.setAttribute('href', unescape(match[1]));
-          }
+    var is_tumblr = false;
+    for(var stylesheet of document.querySelectorAll('link[type="text/css"]')){
+        var href = stylesheet.getAttribute('href');
+        if(href.startsWith('https://assets.tumblr.com')){
+            is_tumblr = true;
+            break;
         }
-        
-        // remove opacity from posts
-        for(var element of document.querySelectorAll('.index-page.grid #posts article')) {
-          element.style.opacity = 1;    
-        }
+    }
+    if(!is_tumblr){
+        return;
+    }
+
+
+    // fix redirects
+    for(var element of document.querySelectorAll('a')){
+      var match = /(?:(?:https?:\/\/)?t\.umblr.com)?\/redirect\?z=(.+?)(&|$)/.exec(element.getAttribute("href") || "");
+      if(match !== null) {
+        element.setAttribute('href', unescape(match[1]));
       }
     }
+
+    // remove opacity from posts
+    for(var element of document.querySelectorAll('.index-page.grid #posts article')) {
+      element.style.opacity = 1;
+    }
+
+
 })();
 
 
