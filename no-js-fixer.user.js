@@ -7,6 +7,8 @@
 var d = new Date();
 console.log(d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds() + ":" + d.getMilliseconds());
 
+var dom_css_loaded = false;
+
 function on_DOM_load(fix_site_function){
     return function(){
         if(document.readyState === "loading"){
@@ -18,7 +20,11 @@ function on_DOM_load(fix_site_function){
 }
 function on_DOM_and_CSS_load(fix_site_function){
     return function(){
-        window.addEventListener('DOMAndCSSLoaded', fix_site_function);
+        if(dom_css_loaded){
+            fix_site_function();
+        } else {
+            window.addEventListener('DOMAndCSSLoaded', fix_site_function);
+        }
     };
 }
 function on_load(fix_site_function){
@@ -592,48 +598,6 @@ on_DOM_load(function(){
 
 })();
 
-function make_visible(elem){
-    var currentstyle = window.getComputedStyle(elem);
-    if (("opacity" in currentstyle) && currentstyle.opacity != 1){
-        elem.style.opacity = 1; 
-    }
-    if (("display" in currentstyle)&& currentstyle.display == "none") {
-        elem.style.display = "initial";
-    }
-    if (("visibility" in currentstyle) && currentstyle.visibility == "hidden") {
-        elem.style.visibility = "visible";
-    }
-}
-
-// common antipattern: invisible or blurred images that are made visible by javascript when scrolled to
-// https://www.theatlantic.com/photo/2012/12/chinas-nail-grave-relocated/100425/
-// http://www.brokenbrowser.com/revealing-the-content-of-the-address-bar-ie/
-// https://www.washingtonpost.com/national/health-science/a-14-year-long-oil-spill-in-the-gulf-of-mexico-verges-on-becoming-one-of-the-worst-in-us-history/2018/10/20/f9a66fd0-9045-11e8-bcd5-9d911c784c38_story.html?noredirect=on
-on_DOM_and_CSS_load(function (){
-    console.log("fuck javascript");
-  for(var img of document.querySelectorAll('img')){
-    currentstyle = window.getComputedStyle(img);
-    if (("filter" in currentstyle) && currentstyle.filter.includes("blur")) {
-      img.style.filter = "none";
-    }
-    if (("-webkit-filter" in currentstyle) && currentstyle["-webkit-filter"].includes("blur")) {
-      img.style["-webkit-filter"] = "none";
-    }
-
-    make_visible(img);
-  }
-})();
-
-
-// Fix simple case of sites which make the <html> or <body> tags invisible
-// Example: 
-//    https://live.engadget.com/2018/05/20/tesla-releases-source-code-for-autopilot-and-infotainment-tech/
-on_DOM_and_CSS_load(function (){
-    make_visible(document.querySelector('html'));
-    make_visible(document.querySelector('body'));
-
-})();
-
 
 // Converts youtube embeds to links
 
@@ -691,10 +655,64 @@ on_DOM_load(function(){
 })();
 
 
+function make_visible(elem){
+    var currentstyle = window.getComputedStyle(elem);
+    if (("opacity" in currentstyle) && currentstyle.opacity != 1){
+        elem.style.opacity = 1;
+    }
+    if (("display" in currentstyle)&& currentstyle.display == "none") {
+        elem.style.display = "initial";
+    }
+    if (("visibility" in currentstyle) && currentstyle.visibility == "hidden") {
+        elem.style.visibility = "visible";
+    }
+}
+
+// Fix simple case of sites which make the <html> or <body> tags invisible
+// Example:
+//    https://live.engadget.com/2018/05/20/tesla-releases-source-code-for-autopilot-and-infotainment-tech/
+on_DOM_and_CSS_load(function (){
+    make_visible(document.querySelector('html'));
+    make_visible(document.querySelector('body'));
+
+})();
 
 
-// Uses heuristics to identify and fix lazy load images
-// Finds the attribute which contains the real URL and sets the src to that
+
+
+
+
+// *******************************************************
+// **************** Image fixes **************************
+// *******************************************************
+
+
+
+
+
+
+// common antipattern: invisible or blurred images that are made visible by javascript when scrolled to
+// https://www.theatlantic.com/photo/2012/12/chinas-nail-grave-relocated/100425/
+// http://www.brokenbrowser.com/revealing-the-content-of-the-address-bar-ie/
+// https://www.washingtonpost.com/national/health-science/a-14-year-long-oil-spill-in-the-gulf-of-mexico-verges-on-becoming-one-of-the-worst-in-us-history/2018/10/20/f9a66fd0-9045-11e8-bcd5-9d911c784c38_story.html?noredirect=on
+function fix_invisible_images(){
+    console.log("fuck javascript");
+  for(var img of document.querySelectorAll('img')){
+    currentstyle = window.getComputedStyle(img);
+    if (("filter" in currentstyle) && currentstyle.filter.includes("blur")) {
+      img.style.filter = "none";
+    }
+    if (("-webkit-filter" in currentstyle) && currentstyle["-webkit-filter"].includes("blur")) {
+      img.style["-webkit-filter"] = "none";
+    }
+
+    make_visible(img);
+  }
+}
+
+
+// Uses heuristics to identify lazy load images
+// Finds the attribute which likely contains the real URL
 
 // example sites: 
 // https://www.howtogeek.com/167533/the-ultimate-guide-to-changing-your-dns-server/
@@ -702,62 +720,121 @@ on_DOM_load(function(){
 // https://www.quora.com/Why-does-C-has-exclamation-point-for-not-ampersand-for-and-and-vertical-line-for-or
 // https://www.theatlantic.com/photo/2012/12/chinas-nail-grave-relocated/100425/
 
-on_DOM_load(function(){
-    var lazy_image_keywords = ['data', 'pagespeed', 'lazy', 'src'];
-    var image_extensions = ['.jpg', '.png', '.gif', '.bmp'];
-
-
-    var fix_lazy_load_element = function(element, src_attribute, keywords, file_extensions) {
-        var last_valid = "";
-        for (var attribute of element.attributes) {
-            /*(var is_image = false;
-            for (var ext of file_extensions) {
-                if (attribute.value.includes(ext)){
-                    is_image = true;
+function find_real_url(element, keywords) {
+    var last_valid = "";
+    for (var attribute of element.attributes) {
+        /*(var is_image = false;
+        for (var ext of file_extensions) {
+            if (attribute.value.includes(ext)){
+                is_image = true;
+                break;
+            }
+        }
+        if(!is_image){
+            continue;
+        }*/
+        var number_of_keywords = 0;
+        for (var keyword of keywords) {
+            if (attribute.name.includes(keyword) ){
+                number_of_keywords += 1;
+                if (number_of_keywords >= 2)
                     break;
-                }
-            }
-            if(!is_image){
-                continue;
-            }*/
-            var number_of_keywords = 0;
-            for (var keyword of keywords) {
-                if (attribute.name.includes(keyword) ){
-                    number_of_keywords += 1;
-                    if (number_of_keywords >= 2) {break};
-                }
-            }
-            
-            if (number_of_keywords >= 2) {
-                last_valid = attribute;
             }
         }
-        if (last_valid !== "") {
-                element.setAttribute(src_attribute, last_valid.value);
-        }
+
+        if (number_of_keywords >= 2)
+            last_valid = attribute;
+    }
+    if (last_valid !== "")
+            return last_valid.value;
+    return '';
+}
+
+on_DOM_load(function(){
+    // Check if the website has img elements inside noscript elements, which likely means they have a 
+    //   no-javascript fallback. If we fix the javascript-only images there will be duplicate
+    //   images inside the noscript elements. So don't touch the images if that's the case.
+
+    // We can't simply check if there's at least one case of this (which would be more efficient). On many websites, 
+    //   the webdevs don't put in the effort to make the lazy-load images work without javascript. They do
+    //   however put the effort to make the tracking work without javascript by putting 1x1 tracking images 
+    //   (to sites like facebook, google analytics, sb.scorecardresearch, etc) inside noscript tags. Webdevs are assholes.
+    
+    // So we instead count the number of instances of img inside noscript tags (image_in_noscript_count), 
+    //   and count the number of instances of img tags in the document that our script thinks are lazy load images
+    //   that can be fixed (image_fixes.length). If image_in_noscript_count is at least 80% (arbitary) of the number of 
+    //   suspected lazy load images, then we decide the website likely has no-js fallbacks for the lazy load images.
+    //   Otherwise we attempt to fix them.
+
+    // examples of sites which have a no-js fallback for lazy load images:
+    // https://www.cnn.com/2019/01/28/us/polar-vortex-explained-wxc/
+
+    // Have to count this way because css selectors don't work on elements inside noscript tags
+    var image_in_noscript_count = 0;
+    for(var noscript of document.querySelectorAll('noscript')){
+        if(noscript.innerHTML.includes('<img '))
+            image_in_noscript_count++;
     }
 
-    var elements = document.querySelectorAll('img');
-    var element;
-    for (var i = 0, len=elements.length; i < len; i++) {
-        element = elements[i];
-        fix_lazy_load_element(element, "src", lazy_image_keywords, image_extensions);
+
+    //var image_extensions = ['.jpg', '.png', '.gif', '.bmp'];
+    var lazy_image_keywords = ['data', 'lazy', 'src'];
+
+    // array of [element, url], where element is an image element and url is the true url that src should be set to
+    var image_fixes = [];
+    var url;
+    for (var element of document.querySelectorAll('img')) {
+        url = find_real_url(element, lazy_image_keywords);
+        if(url !== '')
+            image_fixes.push([element, url]);
+    }
+
+    if(image_fixes.length !==0 && image_in_noscript_count >= 0.8*image_fixes.length)
+        return;      // website likely has no-js fallbacks for the lazy load images, don't touch anything
+
+    console.log('fixing images');
+
+    // apply the lazy-load fixes
+    for(let image_fix of image_fixes){
+        image_fix[0].setAttribute('src', image_fix[1]);
     }
 
     // now fix all the <source> tags in <picture> tag...
     for (var picture_element of document.querySelectorAll('picture')) {
         for (var source_element of picture_element.querySelectorAll("source")) {
-            fix_lazy_load_element(source_element, "srcset", lazy_image_keywords, image_extensions);  
+            url = find_real_url(source_element, lazy_image_keywords);
+            if(url !== '')
+                source_element.setAttribute('srcset', url);
         }
 
     }
+
+    // We put this here because we don't want to do it if the website has no-js fallbacks for images
+    //  as that likely means the webdevs actually tested that the images display without javascript
+    on_DOM_and_CSS_load(fix_invisible_images)();
+
 })();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 // -------- Make the custom DOMAndCSSLoaded event ---------
 // https://stackoverflow.com/a/52938852/8146866
-var dom_css_loaded = new Event('DOMAndCSSLoaded');
-
+var dom_css_loaded_event = new Event('DOMAndCSSLoaded');
 function setup_stylesheet_check(){
     Promise.all(Array.from(document.querySelectorAll('link[rel="stylesheet"]'), ss => new Promise(resolve => {
         const href = ss.href;
@@ -769,7 +846,8 @@ function setup_stylesheet_check(){
         // results is an array of {href:'some url', status: 'load|error|timeout'}
         // at this point stylesheets have finished loading
         console.log("finished");
-        window.dispatchEvent(dom_css_loaded);
+        window.dispatchEvent(dom_css_loaded_event);
+        dom_css_loaded = true;
     });
 }
 
