@@ -44,31 +44,31 @@ function redirect_fixer(fix_link_function){
     return function(){
         //fix the links on the initial page
         for(var link of document.querySelectorAll('a')) {
-          fix_link_function(link);
+            fix_link_function(link);
         }
 
 
         //add a callback to fix any links that are added by javascript on the page, or fix links whose href is changed
         var callback = function(mutationsList) {
-          for(var mutation_record of mutationsList) {
-            if(mutation_record.type === "attributes") {
-              if(mutation_record.target.tagName.toLowerCase() === "a") {
-                fix_link_function(mutation_record.target);
-              }
-            } else {
-              for(var added_node of mutation_record.addedNodes) {
-                if(added_node.nodeType === 1) {
-                  if(added_node.tagName.toLowerCase() === "a") {
-                    fix_link_function(added_node);
-                  }
-                  for(var link of added_node.querySelectorAll('a')) {
-                    fix_link_function(link);
-                  }
-                }
+            for(var mutation_record of mutationsList) {
+                if(mutation_record.type === "attributes") {
+                    if(mutation_record.target.tagName.toLowerCase() === "a") {
+                        fix_link_function(mutation_record.target);
+                    }
+                } else {
+                    for(var added_node of mutation_record.addedNodes) {
+                        if(added_node.nodeType === 1) {
+                            if(added_node.tagName.toLowerCase() === "a") {
+                                fix_link_function(added_node);
+                            }
+                            for(var link of added_node.querySelectorAll('a')) {
+                                fix_link_function(link);
+                            }
+                        }
 
-              }
+                    }
+                }
             }
-          }
         };
 
         var config = { subtree: true, childList: true, attributes: true, attributeFilter: ["href"] };
@@ -84,30 +84,29 @@ function stackexchange_sites() {
     var currentstyle;
     var commentNumber;
     var oReq;
-    for (var i = 0, len=commentContainers.length; i < len; i++) {  
-      element = commentContainers[i];
-      // example: comments-36582356
-      answerId = element.id.slice(9);
-      element = element.querySelector(".js-comments-list");
-      
-      function reqListener () {
-        this.commentList.innerHTML = this.responseText;
-      }
+    for (var i = 0, len=commentContainers.length; i < len; i++) {
+        element = commentContainers[i];
+        // example: comments-36582356
+        answerId = element.id.slice(9);
+        element = element.querySelector(".js-comments-list");
 
-      oReq = new XMLHttpRequest();
-      oReq.answerId = answerId;
-      oReq.commentList = element;
-      oReq.addEventListener("load", reqListener);
-      oReq.open("GET", window.location.origin + "/posts/" + answerId + "/comments", true);
-      oReq.send();
-      
+        function reqListener () {
+            this.commentList.innerHTML = this.responseText;
+        }
+
+        oReq = new XMLHttpRequest();
+        oReq.answerId = answerId;
+        oReq.commentList = element;
+        oReq.addEventListener("load", reqListener);
+        oReq.open("GET", window.location.origin + "/posts/" + answerId + "/comments", true);
+        oReq.send();
+
     }
-  	/*var commentLinks = document.querySelectorAll('.comments-link');
-    for (var i = 0, len=commentLinks.length; i < len; i++) { 
-    	element = commentLinks[i];
-      element.parentNode.removeChild(element);
+    /*var commentLinks = document.querySelectorAll('.comments-link');
+    for (var i = 0, len=commentLinks.length; i < len; i++) {
+        element = commentLinks[i];
+        element.parentNode.removeChild(element);
     }*/
-  
 }
 
 
@@ -119,10 +118,10 @@ dispatch = {
     function(){
         for (var element of document.querySelectorAll('a')) {
 
-          var match = /\/users\/outgoing\?(.+?)$/.exec(element.getAttribute("href") || "");
-          if (match != null) {
-            element.setAttribute('href', match[1] );
-          }
+            var match = /\/users\/outgoing\?(.+?)$/.exec(element.getAttribute("href") || "");
+            if (match != null) {
+                element.setAttribute('href', match[1] );
+            }
 
         }
     },
@@ -132,9 +131,9 @@ dispatch = {
         // removes redirects
         for (var element of document.querySelectorAll('a')) {
             if (element.hasAttribute("data-expanded-url")) {
-              element.setAttribute("href", element.getAttribute("data-expanded-url"));
+                element.setAttribute("href", element.getAttribute("data-expanded-url"));
             } else if (element.hasAttribute("href") && (element.getAttribute("href").indexOf("https://t.co/") == 0) ) {
-                        element.setAttribute("href", element.getAttribute("title") || element.getAttribute("href"));
+                element.setAttribute("href", element.getAttribute("title") || element.getAttribute("href"));
             }
 
         }
@@ -153,15 +152,15 @@ dispatch = {
 
 "youtube.com":      // removes redirects
     redirect_fixer(function(link) {
-      var href = link.getAttribute('href') || "";
-      if (href.indexOf('/redirect') === 0 ) {
-        //console.log(href);
-        var matches = /[\?&](url|q)=(.+?)(&|$)/.exec(href);
-        //console.log(matches);
-        if (matches != null) {
-          link.setAttribute('href', unescape(matches[2]) );
+        var href = link.getAttribute('href') || "";
+        if (href.indexOf('/redirect') === 0 ) {
+            //console.log(href);
+            var matches = /[\?&](url|q)=(.+?)(&|$)/.exec(href);
+            //console.log(matches);
+            if (matches != null) {
+                link.setAttribute('href', unescape(matches[2]) );
+            }
         }
-      }
     }),
 
 
@@ -169,19 +168,19 @@ dispatch = {
     function(){
         for(var img of document.querySelectorAll('.content-fill[id]')){
             img.style.display = 'initial';
-          img.style.position = 'initial';
+            img.style.position = 'initial';
         }
 
         for(var vid of document.querySelectorAll('video[data-src]')){
             vid.src = '/video' + vid.getAttribute('data-src');
-          vid.setAttribute("controls","");
+            vid.setAttribute("controls","");
         }
     },
 "ifunny.co":        // fixes videos
     function(){
         var player_template = document.querySelector('template.js-media-template');
         var player_template_parent = player_template.parentElement;
-        player_template_parent.innerHTML = player_template.innerHTML;	// can't do this with .replaceChild because template html doesn't have node objects 
+        player_template_parent.innerHTML = player_template.innerHTML;   // can't do this with .replaceChild because template html doesn't have node objects
         player_template_parent.style.display = 'initial';
 
         var player = player_template_parent.querySelector('video.js-media-player');
@@ -210,40 +209,38 @@ dispatch = {
     function(){
         // fixes links broken as a result of steam's poor link detection
         var fixLink = function(link) {
-          var re = /https?:\/\//;
-          // remove extraneous http:// added by steam
-          if( link.slice(0,7) === "http://" && /https?:\/\//.test(link.slice(7))) {
-            link = link.slice(7);
-          }
-          if( link[0] === "(") {
-            if(link[link.length - 1] === ")") {
-              link = link.slice(1,-1);
-            } else {
-              link = link.slice(1);
+            var re = /https?:\/\//;
+            // remove extraneous http:// added by steam
+            if( link.slice(0,7) === "http://" && /https?:\/\//.test(link.slice(7))) {
+                link = link.slice(7);
             }
-          }
-          return link;
+            if( link[0] === "(") {
+                if(link[link.length - 1] === ")") {
+                    link = link.slice(1,-1);
+                } else {
+                    link = link.slice(1);
+                }
+            }
+            return link;
         }
 
         var elements = document.querySelectorAll('a');
         var element;
         for (var i = 0, len=elements.length; i < len; i++) {
-          element = elements[i];
-          var match = /\/linkfilter\/\?url=(.+?)$/.exec(element.getAttribute("href") || "");
-          if (match != null) {
-            element.setAttribute('href', fixLink(match[1]) );
-          }
-
+            element = elements[i];
+            var match = /\/linkfilter\/\?url=(.+?)$/.exec(element.getAttribute("href") || "");
+            if (match != null) {
+                element.setAttribute('href', fixLink(match[1]) );
+            }
         }
-
     },
 
 "soundcloud.com":       // removes redirects
     redirect_fixer(function(element) {
-      var href = element.getAttribute("href") || "";
-      if (href.slice(0,20) === "https://exit.sc?url=") {
-        element.setAttribute('href', unescape(href.slice(20)));
-      }
+        var href = element.getAttribute("href") || "";
+        if (href.slice(0,20) === "https://exit.sc?url=") {
+            element.setAttribute('href', unescape(href.slice(20)));
+        }
     }),
 
 "stackoverflow.com":    stackexchange_sites,    // makes all comments visible
@@ -260,42 +257,42 @@ dispatch = {
         var currentstyle;
         var exclude = ["style", "link", "script"]
         for (var i = 0, len=elements.length+1; i < len; i++) {
-            element = elements[i] || document.body;
-            if (!exclude.includes(element.tagName.toLowerCase()) ) {
-              if (element.hasAttribute('hidden')) {
-               element.removeAttribute('hidden'); 
-              }
-              
-              currentstyle = window.getComputedStyle(element);
-              if (("opacity" in currentstyle) && currentstyle.opacity != 1) {
-                element.style.opacity = 1;
-              }
-              if (("display" in currentstyle) && (currentstyle.display == "none")) {
-                element.style.display = "initial";
-              }
-              if (("visibility" in currentstyle) && (currentstyle.visibility == "hidden")) {
-                element.style.visibility = "visible";
-              }
-            }
+                element = elements[i] || document.body;
+                if (!exclude.includes(element.tagName.toLowerCase()) ) {
+                    if (element.hasAttribute('hidden')) {
+                     element.removeAttribute('hidden');
+                    }
+
+                    currentstyle = window.getComputedStyle(element);
+                    if (("opacity" in currentstyle) && currentstyle.opacity != 1) {
+                        element.style.opacity = 1;
+                    }
+                    if (("display" in currentstyle) && (currentstyle.display == "none")) {
+                        element.style.display = "initial";
+                    }
+                    if (("visibility" in currentstyle) && (currentstyle.visibility == "hidden")) {
+                        element.style.visibility = "visible";
+                    }
+                }
         }
     },
 
 "liveleak.com":
     function() {
         for(var video of document.querySelectorAll('video')) {
-          var currentstyle = window.getComputedStyle(video);
-          //console.log(currentstyle.height);
-          if ("height" in currentstyle) {
-            video.style.height = "initial";
-          }
-          if ("padding-top" in currentstyle) {
-            video.style["padding-top"] = "initial"; 
-          }
+            var currentstyle = window.getComputedStyle(video);
+            //console.log(currentstyle.height);
+            if ("height" in currentstyle) {
+                video.style.height = "initial";
+            }
+            if ("padding-top" in currentstyle) {
+                video.style["padding-top"] = "initial";
+            }
         }
     },
 
 "flickr.com":   // bypasses "Adult content: you must sign in to view", also makes link to full image
-    function() {    
+    function() {
         for(var in_the_way of document.querySelectorAll(".photo-notes-scrappy-view, .facade-of-protection-neue ")){
             in_the_way.style.display = "none";
         }
@@ -330,7 +327,7 @@ dispatch = {
                 img.parentNode.appendChild(full_link);
                 full_link.appendChild(img);
             }
-            
+
         }
     },
 "imgur.com":
@@ -344,7 +341,7 @@ dispatch = {
                 var image_id = post_image.parentElement.getAttribute('id');
                 image_url = "//i.imgur.com/" + image_id + ".png";
                 needs_fix = true;
-                
+
             } else {
                 needs_fix = true;
                 // when js disabled, will just be a bunch of meta tags as children
@@ -411,10 +408,10 @@ dispatch = {
         // remove redirects (only for old-style result page)
         for(var element of document.querySelectorAll('#search h3 > a, #search td > a')){
             if (/^(https?:\/\/(www\.|encrypted\.)?google\.[^\/]*)?\/?url/.test(element.href)) {
-              var matches = /[\?&](url|q)=(.+?)(?:&sa=|&ved=)/.exec(element.href);
-              if (matches != null) {
-                element.setAttribute('href', unescape(matches[2]) );
-              }
+                var matches = /[\?&](url|q)=(.+?)(?:&sa=|&ved=)/.exec(element.href);
+                if (matches != null) {
+                    element.setAttribute('href', unescape(matches[2]) );
+                }
             }
         }
 
@@ -429,34 +426,34 @@ dispatch = {
         var search_query = (/[\?&]q=(.+?)(&|$)/.exec(window.location.href) || ["",""])[1];
 
         var replace_with_link_span = function(node_to_replace, result_link) {
-          link_span = document.createElement('span');
-          dash1 = document.createTextNode(' - ');
-          dash2 = document.createTextNode(' - ');
-          cached_link = document.createElement('a');
-          cached_link.setAttribute('href', 'https://webcache.googleusercontent.com/search?q=cache:' + result_link);
-          cached_link.innerHTML = "Cached";
-         
-          similar_link = document.createElement('a'); 
-          similar_link.setAttribute('href', '/search?q=related:' + result_link + "+" + search_query);
-          similar_link.innerHTML = "Similar";
-          
-          link_span.appendChild(dash1);
-          link_span.appendChild(cached_link);
-          link_span.appendChild(dash2);
-          link_span.appendChild(similar_link);
-          
-          node_to_replace.parentNode.replaceChild(link_span, node_to_replace); 
+            link_span = document.createElement('span');
+            dash1 = document.createTextNode(' - ');
+            dash2 = document.createTextNode(' - ');
+            cached_link = document.createElement('a');
+            cached_link.setAttribute('href', 'https://webcache.googleusercontent.com/search?q=cache:' + result_link);
+            cached_link.innerHTML = "Cached";
+
+            similar_link = document.createElement('a');
+            similar_link.setAttribute('href', '/search?q=related:' + result_link + "+" + search_query);
+            similar_link.innerHTML = "Similar";
+
+            link_span.appendChild(dash1);
+            link_span.appendChild(cached_link);
+            link_span.appendChild(dash2);
+            link_span.appendChild(similar_link);
+
+            node_to_replace.parentNode.replaceChild(link_span, node_to_replace);
         }
 
         // This doesn't capture "rich" results which have a different html
         var resultLinks = document.querySelectorAll('#search a[onmousedown], h3 > a');
         for (var i = 0; i < resultLinks.length; i++) {
-          result_href = resultLinks[i].href;
-          result_container = resultLinks[i].parentNode.parentNode;
-          arrow = result_container.querySelector('a[role=button], div[onclick][aria-haspopup=true]');
-          if(arrow != null){
+            result_href = resultLinks[i].href;
+            result_container = resultLinks[i].parentNode.parentNode;
+            arrow = result_container.querySelector('a[role=button], div[onclick][aria-haspopup=true]');
+            if(arrow != null){
                 replace_with_link_span(arrow, result_href);
-          }
+            }
 
         }
 
@@ -530,19 +527,19 @@ on_DOM_and_CSS_load(function(){
 // fix oversized SVG graphics
 on_DOM_load(function(){
     for(var element of document.querySelectorAll('svg:not([width]):not([height])')){
-      element.setAttribute('height', '1em');
+        element.setAttribute('height', '1em');
     }
 })();
 
 // remove embed.ly
 on_DOM_load(function(){
     var querySelectorAllIncludingFrames = function(element,selector) {
-      var results = Array.from(element.querySelectorAll(selector));
-      for(var frame of document.querySelectorAll('iframe')) {
-        results.concat(Array.from(querySelectorAllIncludingFrames(frame.contentWindow.document.body, selector))); 
-      }
-      return results;
-      
+        var results = Array.from(element.querySelectorAll(selector));
+        for(var frame of document.querySelectorAll('iframe')) {
+            results.concat(Array.from(querySelectorAllIncludingFrames(frame.contentWindow.document.body, selector)));
+        }
+        return results;
+
     }
     var src;
     var link_match;
@@ -550,28 +547,28 @@ on_DOM_load(function(){
     var link_url;
     var image_url;
     for(var frame of document.body.querySelectorAll('iframe.embedly-embed')) {
-      //console.log(frame);
-      src = frame.getAttribute("src") || "";
-      //console.log(src);
-      link_match = /&url=(.+?)(&|$)/.exec(src);
-      image_match = /&image=(.+?)(&|$)/.exec(src);
-      if (link_match != null) {
-        link_url = unescape(link_match[1]);
-      } else {
-        link_url = src; 
-      }
-      if (image_match != null) {
-        image_url = unescape(image_match[1]);
-      } else {
-        image_url = "";
-      }
+        //console.log(frame);
+        src = frame.getAttribute("src") || "";
+        //console.log(src);
+        link_match = /&url=(.+?)(&|$)/.exec(src);
+        image_match = /&image=(.+?)(&|$)/.exec(src);
+        if (link_match != null) {
+            link_url = unescape(link_match[1]);
+        } else {
+            link_url = src;
+        }
+        if (image_match != null) {
+            image_url = unescape(image_match[1]);
+        } else {
+            image_url = "";
+        }
 
-      new_link_element = document.createElement("a");
-      new_link_element.setAttribute("href", link_url);
-      image = document.createElement("img");
-      image.setAttribute("src", image_url);
-      new_link_element.appendChild(image);
-      frame.parentNode.replaceChild(new_link_element, frame);
+        new_link_element = document.createElement("a");
+        new_link_element.setAttribute("href", link_url);
+        image = document.createElement("img");
+        image.setAttribute("src", image_url);
+        new_link_element.appendChild(image);
+        frame.parentNode.replaceChild(new_link_element, frame);
     }
 })();
 
@@ -596,15 +593,15 @@ on_DOM_load(function(){
 
     // fix redirects
     for(var element of document.querySelectorAll('a')){
-      var match = /(?:(?:https?:\/\/)?t\.umblr.com)?\/redirect\?z=(.+?)(&|$)/.exec(element.getAttribute("href") || "");
-      if(match !== null) {
-        element.setAttribute('href', unescape(match[1]));
-      }
+        var match = /(?:(?:https?:\/\/)?t\.umblr.com)?\/redirect\?z=(.+?)(&|$)/.exec(element.getAttribute("href") || "");
+        if(match !== null) {
+            element.setAttribute('href', unescape(match[1]));
+        }
     }
 
     // remove opacity from posts
     for(var element of document.querySelectorAll('.index-page.grid #posts article')) {
-      element.style.opacity = 1;
+        element.style.opacity = 1;
     }
 
 
@@ -619,46 +616,46 @@ on_DOM_load(function(){
 
 on_DOM_load(function(){
     var frame_to_link_if_yt_embed = function(frame) {
-      src = frame.getAttribute("src") || "";
-      if ( (src.indexOf("youtube.com") !== -1) || (src.indexOf("youtu.be") !== -1) || (src.indexOf("youtube-nocookie.com") !== -1)) {
-        watch_url = src.replace("/embed/", "/watch?v=").replace("/v/", "/watch?v=").replace("youtu.be", "www.youtube.com").replace("youtube-nocookie.com", "youtube.com");
-        new_link_element = document.createElement("a");
-        new_link_element.setAttribute("href", watch_url);
-        new_link_element.innerHTML = watch_url;
-        frame.parentNode.replaceChild(new_link_element, frame);
-      }
+        src = frame.getAttribute("src") || "";
+        if ( (src.indexOf("youtube.com") !== -1) || (src.indexOf("youtu.be") !== -1) || (src.indexOf("youtube-nocookie.com") !== -1)) {
+            watch_url = src.replace("/embed/", "/watch?v=").replace("/v/", "/watch?v=").replace("youtu.be", "www.youtube.com").replace("youtube-nocookie.com", "youtube.com");
+            new_link_element = document.createElement("a");
+            new_link_element.setAttribute("href", watch_url);
+            new_link_element.innerHTML = watch_url;
+            frame.parentNode.replaceChild(new_link_element, frame);
+        }
     }
 
     //fix the frames on the initial page
     for(var frame of document.querySelectorAll('iframe, embed')) {
-      frame_to_link_if_yt_embed(frame);
+        frame_to_link_if_yt_embed(frame);
     }
 
     //add a callback to fix any frames that are added by javascript on the page
     var callback = function(mutationsList) {
-      var frame;
-      var src;
-      var watch_url;
-      var new_link_element;
-      var tag_name;
-      for(var mutation_record of mutationsList) {
-        if(mutation_record.type === "attributes") {
-          // who's stupid idea was it to return tag names in uppercase?
-          tag_name = mutation_record.target.tagName.toLowerCase();
-          if(tag_name === "iframe" || tag_name === "embed") {
-            frame_to_link_if_yt_embed(mutation_record.target);
-          }
-        } else {
-          for(var added_node of mutation_record.addedNodes) {
-            if(added_node.nodeType === 1) {
-              for(var frame of added_node.querySelectorAll('iframe, embed')) {
-                frame_to_link_if_yt_embed(frame);
-              }
-            }
+        var frame;
+        var src;
+        var watch_url;
+        var new_link_element;
+        var tag_name;
+        for(var mutation_record of mutationsList) {
+            if(mutation_record.type === "attributes") {
+                // who's stupid idea was it to return tag names in uppercase?
+                tag_name = mutation_record.target.tagName.toLowerCase();
+                if(tag_name === "iframe" || tag_name === "embed") {
+                    frame_to_link_if_yt_embed(mutation_record.target);
+                }
+            } else {
+                for(var added_node of mutation_record.addedNodes) {
+                    if(added_node.nodeType === 1) {
+                        for(var frame of added_node.querySelectorAll('iframe, embed')) {
+                            frame_to_link_if_yt_embed(frame);
+                        }
+                    }
 
-          }
+                }
+            }
         }
-      }
     };
 
     var config = { subtree: true, childList: true, attributes: true, attributeFilter: ["src"]  };
@@ -709,24 +706,24 @@ on_DOM_and_CSS_load(function (){
 // https://www.washingtonpost.com/national/health-science/a-14-year-long-oil-spill-in-the-gulf-of-mexico-verges-on-becoming-one-of-the-worst-in-us-history/2018/10/20/f9a66fd0-9045-11e8-bcd5-9d911c784c38_story.html?noredirect=on
 function fix_invisible_images(){
     console.log("fuck javascript");
-  for(var img of document.querySelectorAll('img')){
-    currentstyle = window.getComputedStyle(img);
-    if (("filter" in currentstyle) && currentstyle.filter.includes("blur")) {
-      img.style.filter = "none";
-    }
-    if (("-webkit-filter" in currentstyle) && currentstyle["-webkit-filter"].includes("blur")) {
-      img.style["-webkit-filter"] = "none";
-    }
+    for(var img of document.querySelectorAll('img')){
+        currentstyle = window.getComputedStyle(img);
+        if (("filter" in currentstyle) && currentstyle.filter.includes("blur")) {
+            img.style.filter = "none";
+        }
+        if (("-webkit-filter" in currentstyle) && currentstyle["-webkit-filter"].includes("blur")) {
+            img.style["-webkit-filter"] = "none";
+        }
 
-    make_visible(img);
-  }
+        make_visible(img);
+    }
 }
 
 
 // Uses heuristics to identify lazy load images
 // Finds the attribute which likely contains the real URL
 
-// example sites: 
+// example sites:
 // https://www.howtogeek.com/167533/the-ultimate-guide-to-changing-your-dns-server/
 // https://www.popsci.com/building-public-detailed-map-internet
 // https://www.quora.com/Why-does-C-has-exclamation-point-for-not-ampersand-for-and-and-vertical-line-for-or
@@ -758,7 +755,7 @@ function find_real_url(element, keywords) {
             last_valid = attribute;
     }
     if (last_valid !== "")
-            return last_valid.value;
+        return last_valid.value;
     return '';
 }
 
@@ -771,7 +768,7 @@ on_DOM_load(function(){
     //   the webdevs don't put in the effort to make the lazy-load images work without javascript. They do
     //   however put the effort to make the tracking work without javascript by putting 1x1 tracking images 
     //   (to sites like facebook, google analytics, sb.scorecardresearch, etc) inside noscript tags. Webdevs are assholes.
-    
+
     // So we instead count the number of instances of img inside noscript tags (image_in_noscript_count), 
     //   and count the number of instances of img tags in the document that our script thinks are lazy load images
     //   that can be fixed (image_fixes.length). If image_in_noscript_count is at least 80% (arbitary) of the number of 
