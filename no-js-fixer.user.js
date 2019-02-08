@@ -10,31 +10,25 @@ console.log(d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds() + ":" + d
 var dom_css_loaded = false;
 
 function on_DOM_load(fix_site_function){
-    return function(){
-        if(document.readyState === "loading"){
-            window.addEventListener('DOMContentLoaded', fix_site_function);
-        } else {
-            fix_site_function();
-        }
-    };
+    if(document.readyState === "loading"){
+        window.addEventListener('DOMContentLoaded', fix_site_function);
+    } else {
+        fix_site_function();
+    }
 }
 function on_DOM_and_CSS_load(fix_site_function){
-    return function(){
-        if(dom_css_loaded){
-            fix_site_function();
-        } else {
-            window.addEventListener('DOMAndCSSLoaded', fix_site_function);
-        }
-    };
+    if(dom_css_loaded){
+        fix_site_function();
+    } else {
+        window.addEventListener('DOMAndCSSLoaded', fix_site_function);
+    }
 }
 function on_load(fix_site_function){
-    return function(){
-        if(document.readyState === "loading"){
-            window.addEventListener('load', fix_site_function, false);
-        } else {
-            fix_site_function();
-        }
-    };
+    if(document.readyState === "loading"){
+        window.addEventListener('load', fix_site_function, false);
+    } else {
+        fix_site_function();
+    }
 }
 
 
@@ -522,14 +516,14 @@ on_DOM_and_CSS_load(function(){
             elem.style['pointer-events'] = 'initial';
         }
     }
-})();
+})
 
 // fix oversized SVG graphics
 on_DOM_load(function(){
     for(var element of document.querySelectorAll('svg:not([width]):not([height])')){
         element.setAttribute('height', '1em');
     }
-})();
+})
 
 // remove embed.ly
 on_DOM_load(function(){
@@ -570,7 +564,7 @@ on_DOM_load(function(){
         new_link_element.appendChild(image);
         frame.parentNode.replaceChild(new_link_element, frame);
     }
-})();
+})
 
 
 
@@ -605,7 +599,7 @@ on_DOM_load(function(){
     }
 
 
-})();
+})
 
 
 // Converts youtube embeds to links
@@ -661,7 +655,7 @@ on_DOM_load(function(){
     var config = { subtree: true, childList: true, attributes: true, attributeFilter: ["src"]  };
     var observer = new MutationObserver(callback);
     observer.observe(document, config);
-})();
+})
 
 
 function make_visible(elem){
@@ -684,7 +678,7 @@ on_DOM_and_CSS_load(function (){
     make_visible(document.querySelector('html'));
     make_visible(document.querySelector('body'));
 
-})();
+})
 
 
 
@@ -822,7 +816,7 @@ on_DOM_load(function(){
     //  as that likely means the webdevs actually tested that the images display without javascript
     on_DOM_and_CSS_load(fix_invisible_images)();
 
-})();
+})
 
 
 
