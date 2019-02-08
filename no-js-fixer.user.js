@@ -4,9 +4,6 @@
 // @grant    none
 // ==/UserScript==
 
-var d = new Date();
-console.log(d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds() + ":" + d.getMilliseconds());
-
 var dom_css_loaded = false;
 
 function on_DOM_load(fix_site_function){
@@ -148,9 +145,7 @@ dispatch = {
     redirect_fixer(function(link) {
         var href = link.getAttribute('href') || "";
         if (href.indexOf('/redirect') === 0 ) {
-            //console.log(href);
             var matches = /[\?&](url|q)=(.+?)(&|$)/.exec(href);
-            //console.log(matches);
             if (matches != null) {
                 link.setAttribute('href', unescape(matches[2]) );
             }
@@ -275,7 +270,6 @@ dispatch = {
     function() {
         for(var video of document.querySelectorAll('video')) {
             var currentstyle = window.getComputedStyle(video);
-            //console.log(currentstyle.height);
             if ("height" in currentstyle) {
                 video.style.height = "initial";
             }
@@ -541,9 +535,7 @@ on_DOM_load(function(){
     var link_url;
     var image_url;
     for(var frame of document.body.querySelectorAll('iframe.embedly-embed')) {
-        //console.log(frame);
         src = frame.getAttribute("src") || "";
-        //console.log(src);
         link_match = /&url=(.+?)(&|$)/.exec(src);
         image_match = /&image=(.+?)(&|$)/.exec(src);
         if (link_match != null) {
@@ -699,7 +691,6 @@ on_DOM_and_CSS_load(function (){
 // http://www.brokenbrowser.com/revealing-the-content-of-the-address-bar-ie/
 // https://www.washingtonpost.com/national/health-science/a-14-year-long-oil-spill-in-the-gulf-of-mexico-verges-on-becoming-one-of-the-worst-in-us-history/2018/10/20/f9a66fd0-9045-11e8-bcd5-9d911c784c38_story.html?noredirect=on
 function fix_invisible_images(){
-    console.log("fuck javascript");
     for(var img of document.querySelectorAll('img')){
         currentstyle = window.getComputedStyle(img);
         if (("filter" in currentstyle) && currentstyle.filter.includes("blur")) {
@@ -795,7 +786,6 @@ on_DOM_load(function(){
     if(image_fixes.length !==0 && image_in_noscript_count >= 0.8*image_fixes.length)
         return;      // website likely has no-js fallbacks for the lazy load images, don't touch anything
 
-    console.log('fixing images');
 
     // apply the lazy-load fixes
     for(let image_fix of image_fixes){
@@ -848,7 +838,6 @@ function setup_stylesheet_check(){
     }))).then((results) => {
         // results is an array of {href:'some url', status: 'load|error|timeout'}
         // at this point stylesheets have finished loading
-        console.log("finished");
         window.dispatchEvent(dom_css_loaded_event);
         dom_css_loaded = true;
     });
