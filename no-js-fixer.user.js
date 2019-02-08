@@ -127,8 +127,9 @@ dispatch = {
         }
     },
 
-"twitter.com":      // removes redirects
+"twitter.com":
     function() {
+        // removes redirects
         for (var element of document.querySelectorAll('a')) {
             if (element.hasAttribute("data-expanded-url")) {
               element.setAttribute("href", element.getAttribute("data-expanded-url"));
@@ -136,6 +137,17 @@ dispatch = {
                         element.setAttribute("href", element.getAttribute("title") || element.getAttribute("href"));
             }
 
+        }
+        // fix twitter cards
+        for(var stupid_iframe of document.querySelectorAll('.js-macaw-cards-iframe-container')){
+            var url = stupid_iframe.getAttribute('data-full-card-iframe-url');
+            var iframe = document.createElement('iframe');
+            iframe.setAttribute('src', url);
+            iframe.setAttribute('width', '100%');
+            if(stupid_iframe.getAttribute('class').includes('card-type-summary_large_image'))
+                iframe.setAttribute('height', '360');
+
+            stupid_iframe.appendChild(iframe);
         }
     },
 
