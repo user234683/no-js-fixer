@@ -477,6 +477,21 @@ dispatch = {
             noscript.outerHTML = '<span style="display: inline !important;">' + noscript.innerHTML + '</span>';
         }
     },
+"funnyjunk.com":
+    function(){
+        // too general to get detected by lazy load img fixer
+        for(var lazy_load of document.querySelectorAll('img[data-original]')){
+            lazy_load.setAttribute('src', lazy_load.getAttribute('data-original'));
+        }
+        for(var video of document.querySelectorAll('video[data-original]')){
+            video.setAttribute('poster', video.getAttribute('data-original'));
+            video.setAttribute('controls', '');
+            var source = video.querySelector('source[data-original]');
+            if(source)
+                // setting the src attribute on the source tags after the fact doesn't work on firefox
+                video.setAttribute('src', source.getAttribute('data-original'));
+        }
+    },
 }
 
 
