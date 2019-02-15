@@ -105,15 +105,27 @@ function stackexchange_sites() {
 
 dispatch = {
 
-"deviantart.com":   // removes redirects
+"deviantart.com":
     function(){
+        // remove redirects
         for (var element of document.querySelectorAll('a')) {
-
             var match = /\/users\/outgoing\?(.+?)$/.exec(element.getAttribute("href") || "");
             if (match != null) {
                 element.setAttribute('href', match[1] );
             }
-
+        }
+        for(var view of document.querySelectorAll('.dev-view-deviation')){
+            var full_img_link = document.createElement('a');
+            var full_img = view.querySelector('.dev-content-full');
+            if(!full_img)
+                continue;
+            full_img_link.setAttribute('href', full_img.getAttribute('src'));
+            var small_img = view.querySelector('.dev-content-normal');
+            if(!small_img)
+                continue;
+            small_img.style.display = 'initial';    // prevent img from expanding side to side causing link to be clickable outside of bounds
+            full_img_link.appendChild(small_img);
+            view.appendChild(full_img_link);
         }
     },
 
