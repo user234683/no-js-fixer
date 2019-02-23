@@ -523,7 +523,7 @@ while (true) {
         }
         domain = domain.slice(dot+1);
     } else {
-        on_DOM_load(dispatch_function)();
+        on_DOM_load(dispatch_function);
         break;
     }
 }
@@ -831,7 +831,7 @@ on_DOM_load(function(){
 
     // We put this here because we don't want to do it if the website has no-js fallbacks for images
     //  as that likely means the webdevs actually tested that the images display without javascript
-    on_DOM_and_CSS_load(fix_invisible_images)();
+    on_DOM_and_CSS_load(fix_invisible_images);
 
 })
 
