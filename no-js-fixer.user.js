@@ -680,13 +680,13 @@ on_DOM_load(function(){
 function make_visible(elem){
     var currentstyle = window.getComputedStyle(elem);
     if (("opacity" in currentstyle) && currentstyle.opacity != 1){
-        elem.style.opacity = 1;
+        elem.style.setProperty('opacity', "1", "important");
     }
     if (("display" in currentstyle)&& currentstyle.display == "none") {
-        elem.style.display = "initial";
+        elem.style.setProperty('display', "initial", "important");
     }
     if (("visibility" in currentstyle) && currentstyle.visibility == "hidden") {
-        elem.style.visibility = "visible";
+        elem.style.setProperty('visibility', "visible", "important");
     }
 }
 
@@ -721,10 +721,10 @@ function fix_invisible_images(){
     for(var img of document.querySelectorAll('img')){
         currentstyle = window.getComputedStyle(img);
         if (("filter" in currentstyle) && currentstyle.filter.includes("blur")) {
-            img.style.filter = "none";
+            img.style.setProperty('filter', "none", "important");
         }
         if (("-webkit-filter" in currentstyle) && currentstyle["-webkit-filter"].includes("blur")) {
-            img.style["-webkit-filter"] = "none";
+            img.style.setProperty('-webkit-filter', "none", "important");
         }
 
         make_visible(img);
