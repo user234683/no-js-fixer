@@ -631,7 +631,16 @@ on_DOM_load(function(){
     var frame_to_link_if_yt_embed = function(frame) {
         src = frame.getAttribute("src") || "";
         if ( (src.indexOf("youtube.com") !== -1) || (src.indexOf("youtu.be") !== -1) || (src.indexOf("youtube-nocookie.com") !== -1)) {
-            watch_url = src.replace("/embed/", "/watch?v=").replace("/v/", "/watch?v=").replace("youtu.be", "www.youtube.com").replace("youtube-nocookie.com", "youtube.com");
+            // check if it's an "embedly" frame, if so extract the youtube embed link
+            // example: https://medium.com/@alen.ladavac/the-elusive-frame-timing-168f899aec92
+            var match = /^(?:https?:\/\/)?cdn\.embedly\.com\/widgets\/media\.html\?src=(.+?)(&|$)/.exec(src);
+            if(match !== null){
+                watch_url = unescape(match[1]);
+            } else {
+                watch_url = src;
+            }
+            watch_url = watch_url.replace("/embed/", "/watch?v=").replace("/v/", "/watch?v=").replace("youtu.be", "www.youtube.com").replace("youtube-nocookie.com", "youtube.com");
+
             new_link_element = document.createElement("a");
             new_link_element.setAttribute("href", watch_url);
             new_link_element.innerHTML = watch_url;
