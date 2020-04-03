@@ -741,6 +741,19 @@ function fix_invisible_images(){
 }
 
 
+// check if it's a valid relative/absolute url
+// not perfect, just supposed to weed out obvious cases
+function is_valid_url(url){
+    if(!url.startsWith('http://') && !url.startsWith('https://')
+            && !url.startsWith('/')){
+        return false;
+    }
+    if(url.includes(' ')){
+        return false;
+    }
+    return true;
+}
+
 // Uses heuristics to identify lazy load images
 // Finds the attribute which likely contains the real URL
 
@@ -749,6 +762,7 @@ function fix_invisible_images(){
 // https://www.popsci.com/building-public-detailed-map-internet
 // https://www.quora.com/Why-does-C-has-exclamation-point-for-not-ampersand-for-and-and-vertical-line-for-or
 // https://www.theatlantic.com/photo/2012/12/chinas-nail-grave-relocated/100425/
+// https://www.snopes.com/fact-check/cut-homeless-people-in-half/
 
 function find_real_url(element, keywords) {
     var last_valid = "";
@@ -772,6 +786,9 @@ function find_real_url(element, keywords) {
             }
         }
 
+        if(!is_valid_url(attribute.value))
+            continue;
+
         if (number_of_keywords >= 2)
             last_valid = attribute;
     }
@@ -779,6 +796,7 @@ function find_real_url(element, keywords) {
         return last_valid.value;
     return '';
 }
+
 
 on_DOM_load(function(){
     // Check if the website has img elements inside noscript elements, which likely means they have a 
