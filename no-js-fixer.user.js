@@ -824,8 +824,14 @@ on_DOM_load(function(){
 
 
     // apply the lazy-load fixes
+    // limit to 25 in case of many many images
+    var count = 0;
     for(let image_fix of image_fixes){
         image_fix[0].setAttribute('src', image_fix[1]);
+        count++
+        if(count >= 25){
+            break;
+        }
     }
 
     // now fix all the <source> tags in <picture> tag...
