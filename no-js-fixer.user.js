@@ -763,6 +763,7 @@ function is_valid_url(url){
 // https://www.quora.com/Why-does-C-has-exclamation-point-for-not-ampersand-for-and-and-vertical-line-for-or
 // https://www.theatlantic.com/photo/2012/12/chinas-nail-grave-relocated/100425/
 // https://www.snopes.com/fact-check/cut-homeless-people-in-half/
+// https://kudosrecords.co.uk/artist/332/dmx-krew
 
 function find_real_url(element, keywords) {
     var last_valid = "";
@@ -826,7 +827,7 @@ on_DOM_load(function(){
 
 
     //var image_extensions = ['.jpg', '.png', '.gif', '.bmp'];
-    var lazy_image_keywords = ['data', 'lazy', 'src'];
+    var lazy_image_keywords = ['data', 'lazy', 'src', 'original'];
 
     // array of [element, url], where element is an image element and url is the true url that src should be set to
     var image_fixes = [];
