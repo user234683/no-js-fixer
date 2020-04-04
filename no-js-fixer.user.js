@@ -800,6 +800,17 @@ function find_real_url(element, keywords) {
 
 
 on_DOM_load(function(){
+    // replace amp-img tags with img
+    // example: https://www.independent.co.uk/news/world/americas/us-politics/alabama-black-belt-un-poverty-expert-extreme-developed-country-sewage-crisis-roy-moore-philip-alston-a8105886.html
+    for(var amp_img of document.querySelectorAll('amp-img')){
+        html_img = document.createElement('img');
+        for(var attribute of amp_img.attributes){
+            html_img.setAttribute(attribute.name, attribute.value);
+        }
+        amp_img.parentNode.replaceChild(html_img, amp_img);
+    }
+
+
     // Check if the website has img elements inside noscript elements, which likely means they have a 
     //   no-javascript fallback. If we fix the javascript-only images there will be duplicate
     //   images inside the noscript elements. So don't touch the images if that's the case.
