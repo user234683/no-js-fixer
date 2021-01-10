@@ -818,7 +818,7 @@ on_DOM_load(function(){
     // We can't simply check if there's at least one case of this (which would be more efficient). On many websites, 
     //   the webdevs don't put in the effort to make the lazy-load images work without javascript. They do
     //   however put the effort to make the tracking work without javascript by putting 1x1 tracking images 
-    //   (to sites like facebook, google analytics, sb.scorecardresearch, etc) inside noscript tags. Webdevs are assholes.
+    //   (to sites like facebook, google analytics, sb.scorecardresearch, etc) inside noscript tags.
 
     // So we instead count the number of instances of img inside noscript tags (image_in_noscript_count), 
     //   and count the number of instances of img tags in the document that our script thinks are lazy load images
